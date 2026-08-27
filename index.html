@@ -504,7 +504,7 @@
     <header class="panel no-print">
       <div class="header">
         <div>
-          <h1 class="brand-title">Infinity Daily Pretty Cash</h1>
+          <h1 class="brand-title">Infinity Daily Petty Cash</h1>
           <p class="brand-subtitle">Daily Budget & Petty Cash Application | দৈনিক ক্যাশ রিপোর্ট</p>
         </div>
         <span class="badge">Daily Top Sheet</span>
@@ -532,7 +532,7 @@
       <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
         <div>
           <strong>Firebase Firestore</strong>
-          <p class="text-xs text-slate-500 mt-1">Collection: <b>pretty_cash_reports</b>, Document ID: selected date (YYYY-MM-DD). If Firebase is not configured, LocalStorage works automatically.</p>
+          <p class="text-xs text-slate-500 mt-1">Collection: <b>petty_cash_reports</b>, Document ID: selected date (YYYY-MM-DD). If Firebase is not configured, LocalStorage works automatically.</p>
         </div>
         <button class="btn light" id="toggleFirebaseBtn">Firebase Settings</button>
       </div>
@@ -671,7 +671,12 @@
     const FIRESTORE_COLLECTION = 'pretty_cash_reports';
 
     const expenseCategories = [
+
       'VAT',
+      'PM',
+      'Admin',
+      'Parvej Vai Bill',
+
       'Convence',
       'Gum Tape',
       'Al Madina Bill',
