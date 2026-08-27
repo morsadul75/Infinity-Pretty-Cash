@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Infinity Daily Pretty Cash | Daily Cash Report</title>
+  <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  <style>
+    :root {
+      --ink: #111827;
+      --muted: #64748b;
+      --line: #1f2937;
+      --blue: #1d4ed8;
+      --green: #047857;
+      --red: #dc2626;
+      --amber: #d97706;
+      --soft: #f8fafc;
+      --head: #dbe8bf;
+      --lavender: #c7b6d9;
+      --summary: #fff7d6;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      color: var(--ink);
+      background: linear-gradient(135deg, #eef2ff 0%, #fff7ed 100%);
+      font-family: "Segoe UI", "Noto Sans Bengali", "Kalpurush", Arial, sans-serif;
+    }
+
+    .app {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 18px;
+    }
+
+    .panel {
+      background: rgba(255, 255, 255, 0.96);
+      border: 1px solid #dbe3ef;
+      border-radius: 16px;
+      box-shadow: 0 18px 45px rgba(15, 23, 42, 0.09);
+      overflow: hidden;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      color: white;
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 58%, #2563eb 100%);
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: clamp(25px, 4vw, 40px);
+      line-height: 0.98;
+      letter-spacing: -0.035em;
+      font-weight: 950;
+    }
+
+    .brand-subtitle {
+      margin: 7px 0 0;
+      color: #dbeafe;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      padding: 8px 15px;
+      font-size: 13px;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      padding: 12px;
+      background: #f8fafc;
+      border-top: 1px solid #dbe3ef;
+    }
+
+    .control-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .field, .cell-input, .cell-select {
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      background: white;
+      color: var(--ink);
+      font: inherit;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .field {
+      height: 38px;
+      padding: 0 10px;
+      font-size: 13px;
+    }
+
+    .field:focus, .cell-input:focus, .cell-select:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.12);
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 9px;
+      min-height: 38px;
+      padding: 0 13px;
+      color: white;
+      background: var(--blue);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 900;
+      cursor: pointer;
+      transition: transform 0.15s ease, filter 0.15s ease;
+    }
+
+    .btn:hover { transform: translateY(-1px); filter: brightness(0.98); }
+    .btn:active { transform: translateY(0); }
+    .btn.green { background: var(--green); }
+    .btn.red { background: var(--red); }
+    .btn.amber { background: var(--amber); }
+    .btn.gray { background: #475569; }
+    .btn.light { background: #e2e8f0; color: #0f172a; }
+    .btn.small { min-height: 28px; padding: 0 9px; font-size: 12px; border-radius: 7px; }
+
+    .storage-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 34px;
+      padding: 0 11px;
+      border: 1px solid #dbe3ef;
+      border-radius: 999px;
+      background: white;
+      color: #334155;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--amber);
+      box-shadow: 0 0 0 3px rgba(217, 119, 6, 0.12);
+    }
+
+    .dot.on {
+      background: var(--green);
+      box-shadow: 0 0 0 3px rgba(4, 120, 87, 0.12);
+    }
+
+    .firebase-settings {
+      margin-top: 12px;
+      padding: 12px;
+      border: 1px solid #dbe3ef;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .firebase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .metric-card {
+      background: white;
+      border: 1px solid #dbe3ef;
+      border-radius: 14px;
+      padding: 13px 14px;
+      box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+    }
+
+    .metric-card span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .metric-card strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 950;
+    }
+
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      padding: 12px 14px;
+      background: #f8fafc;
+      border: 1px solid #dbe3ef;
+      border-bottom: 0;
+    }
+
+    .section-head h2 {
+      margin: 0;
+      color: #172554;
+      font-size: 17px;
+      font-weight: 950;
+    }
+
+    .sheet-wrap {
+      overflow: auto;
+      background: white;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    table.sheet {
+      width: 100%;
+      min-width: 780px;
+      border-collapse: collapse;
+      table-layout: fixed;
+      background: white;
+    }
+
+    .sheet th, .sheet td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      vertical-align: middle;
+      font-size: 15px;
+      height: 36px;
+      min-height: 20px;
+    }
+
+    .sheet th {
+      background: var(--head);
+      text-align: center;
+      font-weight: 950;
+    }
+
+    .sheet .top-cell {
+      background: var(--lavender);
+      text-align: center;
+      font-weight: 950;
+    }
+
+    .cell-input, .cell-select {
+      width: 100%;
+      min-height: 30px;
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .amount-input, .amount {
+      text-align: right;
+      font-weight: 900;
+    }
+
+    .label-cell { font-weight: 900; }
+    .blue-text { color: var(--blue); }
+    .green-text { color: var(--green); }
+    .red-text { color: var(--red); }
+
+    .highlight-summary {
+      margin-top: 50px;
+      border: 2px solid #92400e;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fff7d6 0%, #ffedd5 100%);
+      box-shadow: 0 14px 34px rgba(146, 64, 14, 0.12);
+      overflow: hidden;
+    }
+
+    .highlight-summary h2 {
+      margin: 0;
+      padding: 11px 14px;
+      color: #7c2d12;
+      background: #fed7aa;
+      border-bottom: 1px solid #92400e;
+      font-size: 16px;
+      font-weight: 950;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0;
+    }
+
+    .summary-item {
+      padding: 11px 10px;
+      border-right: 1px solid #f59e0b;
+      text-align: center;
+    }
+
+    .summary-item:last-child { border-right: 0; }
+    .summary-item span {
+      display: block;
+      font-size: 11px;
+      color: #7c2d12;
+      font-weight: 900;
+    }
+    .summary-item strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 19px;
+      font-weight: 950;
+    }
+
+    .report-card {
+      margin-top: 14px;
+      background: white;
+      border: 1px solid #cbd5e1;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    .report-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #eff6ff;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .report-title h2 { margin: 0; font-size: 17px; font-weight: 950; color: #172554; }
+    .report-title p { margin: 3px 0 0; color: var(--muted); font-size: 12px; font-weight: 700; }
+
+    .toast-wrap {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      display: grid;
+      gap: 8px;
+      z-index: 100;
+    }
+
+    .toast {
+      min-width: 260px;
+      max-width: 390px;
+      padding: 11px 13px;
+      background: white;
+      border-left: 4px solid var(--blue);
+      border-radius: 10px;
+      box-shadow: 0 14px 34px rgba(15, 23, 42, 0.18);
+      font-size: 13px;
+      font-weight: 800;
+      animation: toastIn 0.22s ease-out;
+    }
+
+    .toast.good { border-left-color: var(--green); }
+    .toast.warn { border-left-color: var(--amber); }
+    .toast.bad { border-left-color: var(--red); }
+
+    @keyframes toastIn {
+      from { transform: translateX(26px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .print-only { display: none; }
+
+    .print-title {
+      text-align: center;
+      border-bottom: 2px double #111827;
+      margin-bottom: 5px;
+      padding-bottom: 4px;
+    }
+
+    .print-title h1 { margin: 0; font-size: 18px; font-weight: 950; }
+    .print-title p { margin: 1px 0 0; font-size: 11px; font-weight: 800; }
+
+    .signature-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 12px;
+      margin-top: 50px;
+    }
+
+    .signature-cell { width: 30%; text-align: center; font-size: 10px; font-weight: 850; }
+    .signature-line { border-top: 1px solid #111827; padding-top: 3px; }
+
+    @media (max-width: 820px) {
+      .app { padding: 10px; }
+      .header { align-items: flex-start; flex-direction: column; }
+      .toolbar, .control-group { align-items: stretch; flex-direction: column; width: 100%; }
+      .field, .btn, .storage-status { width: 100%; }
+      .summary-strip, .summary-grid, .firebase-grid { grid-template-columns: 1fr; }
+      .summary-item { border-right: 0; border-bottom: 1px solid #f59e0b; }
+      .section-head, .report-title { align-items: stretch; flex-direction: column; }
+    }
+
+    @media print {
+      @page { size: A4 portrait; margin: 6mm; }
+
+      html, body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: white !important;
+        color: black !important;
+        font-size: 10.5px !important;
+        line-height: 1.08 !important;
+      }
+
+      .no-print { display: none !important; }
+      .print-only { display: block !important; }
+      .app { max-width: none !important; margin: 0 !important; padding: 0 !important; }
+      .print-title { margin: 0 0 3px !important; padding-bottom: 2px !important; page-break-inside: avoid !important; break-inside: avoid !important; }
+      .print-title h1 { font-size: 14px !important; line-height: 1 !important; }
+      .print-title p { font-size: 9px !important; margin: 1px 0 0 !important; }
+
+      table.sheet {
+        width: 100% !important;
+        min-width: 0 !important;
+        border-collapse: collapse !important;
+        table-layout: fixed !important;
+      }
+
+      .sheet th, .sheet td {
+        padding: 3px 6px !important;
+        font-size: 11px !important;
+        line-height: 1.12 !important;
+        height: 20px !important;
+        min-height: 20px !important;
+        border: 1px solid #111827 !important;
+      }
+
+      .sheet tr, .print-section, .highlight-summary, .signature-row {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
+      }
+
+      .sheet th, .sheet .top-cell, .highlight-summary h2, .summary-item {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      .sheet th { background: #dbe8bf !important; }
+      .sheet .top-cell { background: #c7b6d9 !important; }
+
+      .highlight-summary {
+        margin-top: 50px !important;
+        border: 1.5px solid #92400e !important;
+        border-radius: 5px !important;
+        background: #fff7d6 !important;
+        box-shadow: none !important;
+        page-break-before: avoid !important;
+      }
+
+      .highlight-summary h2 {
+        padding: 3px 5px !important;
+        font-size: 10px !important;
+        background: #fed7aa !important;
+      }
+
+      .summary-grid {
+        display: grid !important;
+        grid-template-columns: repeat(6, 1fr) !important;
+      }
+
+      .summary-item {
+        padding: 3px 3px !important;
+        border-right: 1px solid #f59e0b !important;
+      }
+
+      .summary-item span { font-size: 8px !important; line-height: 1.05 !important; }
+      .summary-item strong { font-size: 10.5px !important; margin-top: 1px !important; }
+      .signature-row { margin-top: 50px !important; gap: 8px !important; display: flex !important; }
+      .signature-cell { font-size: 8.5px !important; }
+      .signature-line { padding-top: 2px !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <header class="panel no-print">
+      <div class="header">
+        <div>
+          <h1 class="brand-title">Infinity Daily Pretty Cash</h1>
+          <p class="brand-subtitle">Daily Budget & Petty Cash Application | দৈনিক ক্যাশ রিপোর্ট</p>
+        </div>
+        <span class="badge">Daily Top Sheet</span>
+      </div>
+      <div class="toolbar">
+        <div class="control-group">
+          <label class="text-sm font-bold text-slate-700" for="reportDate">তারিখ / Date</label>
+          <input class="field" id="reportDate" type="date" />
+          <select class="field" id="historySelect" aria-label="Date Wise History">
+            <option value="">Date Wise History</option>
+          </select>
+          <button class="btn gray" id="loadHistoryBtn">Load History</button>
+        </div>
+        <div class="control-group">
+          <button class="btn green" id="saveBtn">Save Report</button>
+          <button class="btn" id="printBtn">Print / Download PDF</button>
+          <button class="btn amber" id="newDayBtn">Start New Day</button>
+          <button class="btn red" id="resetBtn">Reset</button>
+          <span class="storage-status"><span class="dot" id="storageDot"></span><span id="storageText">LocalStorage ready</span></span>
+        </div>
+      </div>
+    </header>
+
+    <section class="firebase-settings no-print">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+        <div>
+          <strong>Firebase Firestore</strong>
+          <p class="text-xs text-slate-500 mt-1">Collection: <b>pretty_cash_reports</b>, Document ID: selected date (YYYY-MM-DD). If Firebase is not configured, LocalStorage works automatically.</p>
+        </div>
+        <button class="btn light" id="toggleFirebaseBtn">Firebase Settings</button>
+      </div>
+      <div id="firebaseFields" class="hidden">
+        <div class="firebase-grid">
+          <input class="field" id="fbApiKey" placeholder="apiKey" />
+          <input class="field" id="fbAuthDomain" placeholder="authDomain" />
+          <input class="field" id="fbProjectId" placeholder="projectId" />
+          <input class="field" id="fbAppId" placeholder="appId" />
+          <input class="field" id="fbStorageBucket" placeholder="storageBucket (optional)" />
+          <input class="field" id="fbSenderId" placeholder="messagingSenderId (optional)" />
+        </div>
+        <div class="control-group mt-3">
+          <button class="btn green" id="connectFirebaseBtn">Connect Firebase</button>
+          <button class="btn light" id="clearFirebaseBtn">Clear Firebase Config</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="summary-strip no-print" aria-label="Current totals">
+      <div class="metric-card">
+        <span>মোট ক্যাশ প্রাপ্তি / Grand Total</span>
+        <strong class="blue-text" id="grandTotalTop">৳0.00</strong>
+      </div>
+      <div class="metric-card">
+        <span>মোট খরচ / Total Expenditure</span>
+        <strong class="red-text" id="expenseTotalTop">৳0.00</strong>
+      </div>
+      <div class="metric-card">
+        <span>এখন অবশিষ্ট টাকা / Final Remaining</span>
+        <strong class="green-text" id="remainingTop">৳0.00</strong>
+      </div>
+    </section>
+
+    <main class="no-print">
+      <div class="section-head">
+        <h2>Debit / Cash Received - জমা</h2>
+        <button class="btn light" id="addCashBtn">+ Add Additional Cash</button>
+      </div>
+      <div class="sheet-wrap">
+        <table class="sheet" aria-label="Income table">
+          <colgroup>
+            <col style="width: 8%;" />
+            <col style="width: 34%;" />
+            <col style="width: 36%;" />
+            <col style="width: 15%;" />
+            <col style="width: 7%;" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="top-cell" id="screenDateCell"></th>
+              <th class="top-cell" colspan="2">Daily Top Sheet</th>
+              <th class="top-cell">Debit</th>
+              <th class="top-cell">Action</th>
+            </tr>
+            <tr>
+              <th>SL</th>
+              <th>Item / Category</th>
+              <th>বিবরণ / Details</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="incomeBody"></tbody>
+        </table>
+      </div>
+
+      <div class="section-head">
+        <h2>Credit / Expenses - খরচ</h2>
+        <button class="btn light" id="addExpenseBtn">+ Add Expense Row</button>
+      </div>
+      <div class="sheet-wrap">
+        <table class="sheet" aria-label="Expenses table">
+          <colgroup>
+            <col style="width: 8%;" />
+            <col style="width: 26%;" />
+            <col style="width: 44%;" />
+            <col style="width: 15%;" />
+            <col style="width: 7%;" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th>SL</th>
+              <th>Item Name / Category</th>
+              <th>Description / কোথায় কত টাকা খরচ হয়েছে</th>
+              <th>Amount</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="expenseBody"></tbody>
+        </table>
+      </div>
+
+      <section class="report-card" aria-label="Detailed report view">
+        <div class="report-title">
+          <div>
+            <h2>Detailed Date-Wise Report</h2>
+            <p id="activeReportLabel">Every transaction for the selected date is shown below.</p>
+          </div>
+          <button class="btn light" id="refreshReportBtn">Refresh Report View</button>
+        </div>
+        <div class="sheet-wrap" style="box-shadow:none; border:0;">
+          <table class="sheet" aria-label="Detailed itemized report">
+            <colgroup>
+              <col style="width: 9%;" />
+              <col style="width: 17%;" />
+              <col style="width: 25%;" />
+              <col style="width: 34%;" />
+              <col style="width: 15%;" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th>SL</th>
+                <th>Type</th>
+                <th>Item Name / Category</th>
+                <th>Description</th>
+                <th>Amount</th>
+              </tr>
+            </thead>
+            <tbody id="detailBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="summaryBox" class="highlight-summary"></section>
+    </main>
+
+    <section id="printArea" class="print-only"></section>
+  </div>
+
+  <div id="toastWrap" class="toast-wrap no-print"></div>
+
+  <script>
+    const LOCAL_KEY = 'pretty_cash_reports_local';
+    const FIREBASE_CONFIG_KEY = 'pretty_cash_firebase_config';
+    const FIRESTORE_COLLECTION = 'pretty_cash_reports';
+
+    const expenseCategories = [
+      'VAT',
+      'Convence',
+      'Gum Tape',
+      'Al Madina Bill',
+      'Kerosin',
+      'Thiner',
+      'Advance Salary',
+      'Salain',
+      'Ruhul Amin Bill',
+      'Romi Eng Bill',
+      'Fork Lift',
+      'Others'
+    ];
+
+    let rowSeed = 1;
+    let state = createBlankState(todayISO());
+    let firebaseReady = false;
+    let fb = null;
+
+    const $ = (id) => document.getElementById(id);
+
+    function todayISO() {
+      const d = new Date();
+      return toISODate(d);
+    }
+
+    function toISODate(date) {
+      return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    }
+
+    function addDays(isoDate, days) {
+      const date = new Date(`${isoDate}T00:00:00`);
+      date.setDate(date.getDate() + days);
+      return toISODate(date);
+    }
+
+    function displayDate(isoDate) {
+      if (!isoDate) return '';
+      const date = new Date(`${isoDate}T00:00:00`);
+      return date.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }).replace(/\//g, '.');
+    }
+
+    function uid() {
+      return `${Date.now()}_${rowSeed++}`;
+    }
+
+    function toNumber(value) {
+      const number = Number.parseFloat(value);
+      return Number.isFinite(number) ? number : 0;
+    }
+
+    function money(value, withSymbol = true) {
+      const formatted = Number(value || 0).toLocaleString('en-IN', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+      return withSymbol ? `৳${formatted}` : formatted;
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]);
+    }
+
+    function createBlankState(date, openingBalance = 0) {
+      return {
+        date,
+        openingBalance,
+        todayBudget: 0,
+        additionalIncome: [],
+        expenses: [
+          { id: uid(), category: 'Convence', description: '', amount: 0 },
+          { id: uid(), category: 'VAT', description: '', amount: 0 }
+        ]
+      };
+    }
+
+    function calculateSummary(input = state) {
+      const totalAdditionalIncome = input.additionalIncome.reduce((sum, row) => sum + toNumber(row.amount), 0);
+      const grandTotalReceived = toNumber(input.openingBalance) + toNumber(input.todayBudget) + totalAdditionalIncome;
+      const totalExpenditure = input.expenses.reduce((sum, row) => sum + toNumber(row.amount), 0);
+      const finalRemainingBalance = grandTotalReceived - totalExpenditure;
+
+      return {
+        todayBudget: toNumber(input.todayBudget),
+        openingBalance: toNumber(input.openingBalance),
+        totalAdditionalIncome,
+        grandTotalReceived,
+        totalExpenditure,
+        finalRemainingBalance
+      };
+    }
+
+    function normalizeReport(report) {
+      const safe = report || {};
+      return {
+        date: safe.date || todayISO(),
+        openingBalance: toNumber(safe.openingBalance),
+        todayBudget: toNumber(safe.todayBudget),
+        additionalIncome: Array.isArray(safe.additionalIncome || safe.additionalCash) ? (safe.additionalIncome || safe.additionalCash).map((row) => ({
+          id: row.id || uid(),
+          description: row.description || row.details || row.source || '',
+          amount: toNumber(row.amount)
+        })) : [],
+        expenses: Array.isArray(safe.expenses) ? safe.expenses.map((row) => ({
+          id: row.id || uid(),
+          category: row.category || row.department || row.item || row.dept || '',
+          description: row.description || row.desc || '',
+          amount: toNumber(row.amount)
+        })) : []
+      };
+    }
+
+    function buildFirestoreDocument() {
+      const summary = calculateSummary();
+      return {
+        date: state.date,
+        openingBalance: summary.openingBalance,
+        todayBudget: summary.todayBudget,
+        additionalIncome: state.additionalIncome.map((row) => ({
+          id: row.id,
+          description: row.description || '',
+          amount: toNumber(row.amount)
+        })),
+        expenses: state.expenses.map((row) => ({
+          id: row.id,
+          category: row.category || '',
+          description: row.description || '',
+          amount: toNumber(row.amount)
+        })),
+        summary,
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    function localMap() {
+      try {
+        return JSON.parse(localStorage.getItem(LOCAL_KEY) || '{}');
+      } catch (error) {
+        return {};
+      }
+    }
+
+    function saveLocal(report) {
+      const map = localMap();
+      map[report.date] = report;
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(map));
+    }
+
+    function loadLocal(date) {
+      return localMap()[date] || null;
+    }
+
+    function getLocalReports() {
+      return Object.values(localMap()).sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    function updateStorageStatus(label, online) {
+      $('storageText').textContent = label;
+      $('storageDot').classList.toggle('on', online);
+    }
+
+    function getFirebaseConfigFromFields() {
+      return {
+        apiKey: $('fbApiKey').value.trim(),
+        authDomain: $('fbAuthDomain').value.trim(),
+        projectId: $('fbProjectId').value.trim(),
+        appId: $('fbAppId').value.trim(),
+        storageBucket: $('fbStorageBucket').value.trim() || undefined,
+        messagingSenderId: $('fbSenderId').value.trim() || undefined
+      };
+    }
+
+    function fillFirebaseFields(config = {}) {
+      $('fbApiKey').value = config.apiKey || '';
+      $('fbAuthDomain').value = config.authDomain || '';
+      $('fbProjectId').value = config.projectId || '';
+      $('fbAppId').value = config.appId || '';
+      $('fbStorageBucket').value = config.storageBucket || '';
+      $('fbSenderId').value = config.messagingSenderId || '';
+    }
+
+    async function connectFirebase(auto = false) {
+      const config = getFirebaseConfigFromFields();
+      if (!config.apiKey || !config.projectId || !config.appId) {
+        firebaseReady = false;
+        fb = null;
+        updateStorageStatus('LocalStorage ready', false);
+        if (!auto) showToast('Firebase config incomplete. Using LocalStorage.', 'warn');
+        return false;
+      }
+
+      try {
+        const appMod = await import('https://www.gstatic.com/firebasejs/10.12.4/firebase-app.js');
+        const fsMod = await import('https://www.gstatic.com/firebasejs/10.12.4/firebase-firestore.js');
+        const app = appMod.getApps().length ? appMod.getApps()[0] : appMod.initializeApp(config);
+        const database = fsMod.getFirestore(app);
+        fb = {
+          database,
+          doc: fsMod.doc,
+          setDoc: fsMod.setDoc,
+          getDoc: fsMod.getDoc,
+          getDocs: fsMod.getDocs,
+          collection: fsMod.collection
+        };
+        firebaseReady = true;
+        localStorage.setItem(FIREBASE_CONFIG_KEY, JSON.stringify(config));
+        updateStorageStatus(`Firebase: ${config.projectId}`, true);
+        showToast('Firebase connected.', 'good');
+        await refreshHistory();
+        return true;
+      } catch (error) {
+        firebaseReady = false;
+        fb = null;
+        updateStorageStatus('Firebase failed. LocalStorage active', false);
+        showToast(`Firebase failed: ${error.message}`, 'bad');
+        return false;
+      }
+    }
+
+    async function saveRemote(report) {
+      if (!firebaseReady || !fb) return;
+      const ref = fb.doc(fb.database, FIRESTORE_COLLECTION, report.date);
+      await fb.setDoc(ref, report, { merge: true });
+    }
+
+    async function loadRemote(date) {
+      if (!firebaseReady || !fb) return null;
+      const ref = fb.doc(fb.database, FIRESTORE_COLLECTION, date);
+      const snapshot = await fb.getDoc(ref);
+      return snapshot.exists() ? snapshot.data() : null;
+    }
+
+    async function getRemoteReports() {
+      if (!firebaseReady || !fb) return [];
+      const snapshot = await fb.getDocs(fb.collection(fb.database, FIRESTORE_COLLECTION));
+      return snapshot.docs.map((docSnap) => docSnap.data()).filter((item) => item && item.date).sort((a, b) => b.date.localeCompare(a.date));
+    }
+
+    function categoryOptions(selected) {
+      const knownOptions = expenseCategories.map((category) => (
+        `<option value="${escapeHtml(category)}" ${category === selected ? 'selected' : ''}>${escapeHtml(category)}</option>`
+      )).join('');
+      const customOption = selected && !expenseCategories.includes(selected)
+        ? `<option value="${escapeHtml(selected)}" selected>${escapeHtml(selected)}</option>`
+        : '';
+      return '<option value="">Select category</option>' + customOption + knownOptions;
+    }
+
+    function renderIncomeRows() {
+      const rows = [
+        `<tr>
+          <td class="amount">1</td>
+          <td class="label-cell">হাতে ছিল / Opening Balance</td>
+          <td>Previous Remaining</td>
+          <td><input class="cell-input amount-input" type="number" step="0.01" data-field="openingBalance" value="${state.openingBalance || ''}" placeholder="0.00"></td>
+          <td></td>
+        </tr>`,
+        `<tr>
+          <td class="amount">2</td>
+          <td class="label-cell">আজকের বাজেট / Today's Budget</td>
+          <td>Daily allocated cash</td>
+          <td><input class="cell-input amount-input" type="number" step="0.01" data-field="todayBudget" value="${state.todayBudget || ''}" placeholder="0.00"></td>
+          <td></td>
+        </tr>`
+      ];
+
+      state.additionalIncome.forEach((row, index) => {
+        rows.push(`<tr>
+          <td class="amount">${index + 3}</td>
+          <td class="label-cell">অতিরিক্ত জমা / Additional Cash</td>
+          <td><input class="cell-input" data-income-id="${row.id}" data-income-field="description" value="${escapeHtml(row.description)}" placeholder="বিবরণ / উৎস"></td>
+          <td><input class="cell-input amount-input" type="number" step="0.01" data-income-id="${row.id}" data-income-field="amount" value="${row.amount || ''}" placeholder="0.00"></td>
+          <td><button class="btn red small" data-remove-income="${row.id}">-</button></td>
+        </tr>`);
+      });
+
+      $('incomeBody').innerHTML = rows.join('');
+    }
+
+    function renderExpenseRows() {
+      if (state.expenses.length === 0) {
+        $('expenseBody').innerHTML = '<tr><td colspan="5" class="text-center text-slate-400">No expense rows added.</td></tr>';
+        return;
+      }
+
+      $('expenseBody').innerHTML = state.expenses.map((row, index) => `<tr>
+        <td class="amount">${index + 1}</td>
+        <td><select class="cell-select" data-expense-id="${row.id}" data-expense-field="category">${categoryOptions(row.category)}</select></td>
+        <td><input class="cell-input" data-expense-id="${row.id}" data-expense-field="description" value="${escapeHtml(row.description)}" placeholder="কোথায় কত টাকা খরচ হয়েছে"></td>
+        <td><input class="cell-input amount-input" type="number" step="0.01" data-expense-id="${row.id}" data-expense-field="amount" value="${row.amount || ''}" placeholder="0.00"></td>
+        <td><button class="btn red small" data-remove-expense="${row.id}">-</button></td>
+      </tr>`).join('');
+    }
+
+    function detailRows() {
+      const rows = [
+        { type: 'Debit', category: 'হাতে ছিল / Opening Balance', description: 'Previous Remaining', amount: state.openingBalance },
+        { type: 'Debit', category: "আজকের বাজেট / Today's Budget", description: 'Daily allocated cash', amount: state.todayBudget },
+        ...state.additionalIncome.map((row) => ({ type: 'Debit', category: 'অতিরিক্ত জমা / Additional Cash', description: row.description, amount: row.amount })),
+        ...state.expenses.map((row) => ({ type: 'Credit', category: row.category, description: row.description, amount: row.amount }))
+      ];
+      return rows.filter((row) => toNumber(row.amount) !== 0 || row.description || row.category);
+    }
+
+    function renderDetailReport() {
+      const rows = detailRows();
+      $('activeReportLabel').textContent = `Selected date: ${displayDate(state.date)} | ${rows.length} item(s)`;
+      $('detailBody').innerHTML = rows.length ? rows.map((row, index) => `<tr>
+        <td class="amount">${index + 1}</td>
+        <td>${escapeHtml(row.type)}</td>
+        <td>${escapeHtml(row.category)}</td>
+        <td>${escapeHtml(row.description)}</td>
+        <td class="amount ${row.type === 'Credit' ? 'red-text' : 'blue-text'}">${money(row.amount)}</td>
+      </tr>`).join('') : '<tr><td colspan="5" class="text-center text-slate-400">No data for this date.</td></tr>';
+    }
+
+    function renderSummaryBox(targetId = 'summaryBox') {
+      const summary = calculateSummary();
+      $(targetId).innerHTML = `
+        <h2>Highlighted Summary / হিসাব বিবরণী</h2>
+        <div class="summary-grid">
+          <div class="summary-item"><span>আজকের বাজেট<br>Today's Budget</span><strong class="blue-text">${money(summary.todayBudget)}</strong></div>
+          <div class="summary-item"><span>হাতে ছিল<br>Opening Balance</span><strong class="blue-text">${money(summary.openingBalance)}</strong></div>
+          <div class="summary-item"><span>মোট এডিশনাল জমা<br>Additional Cash</span><strong class="green-text">${money(summary.totalAdditionalIncome)}</strong></div>
+          <div class="summary-item"><span>মোট ক্যাশ প্রাপ্তি<br>Grand Total Cash</span><strong class="blue-text">${money(summary.grandTotalReceived)}</strong></div>
+          <div class="summary-item"><span>মোট খরচ<br>Total Expenditure</span><strong class="red-text">${money(summary.totalExpenditure)}</strong></div>
+          <div class="summary-item"><span>এখন অবশিষ্ট টাকা<br>Final Remaining</span><strong class="${summary.finalRemainingBalance >= 0 ? 'green-text' : 'red-text'}">${money(summary.finalRemainingBalance)}</strong></div>
+        </div>
+      `;
+    }
+
+    function renderTopTotals() {
+      const summary = calculateSummary();
+      $('grandTotalTop').textContent = money(summary.grandTotalReceived);
+      $('expenseTotalTop').textContent = money(summary.totalExpenditure);
+      $('remainingTop').textContent = money(summary.finalRemainingBalance);
+      $('remainingTop').className = summary.finalRemainingBalance >= 0 ? 'green-text' : 'red-text';
+      $('screenDateCell').textContent = displayDate(state.date);
+    }
+
+    function renderPrintArea() {
+      const rows = detailRows();
+      const body = rows.length ? rows.map((row, index) => `<tr>
+        <td class="amount">${index + 1}</td>
+        <td>${escapeHtml(row.type)}</td>
+        <td>${escapeHtml(row.category)}</td>
+        <td>${escapeHtml(row.description)}</td>
+        <td class="amount">${money(row.amount, false)}</td>
+      </tr>`).join('') : '<tr><td colspan="5" style="text-align:center;">No data for this date.</td></tr>';
+
+      $('printArea').innerHTML = `
+        <div class="print-title print-section">
+          <h1>Infinity Daily Pretty Cash</h1>
+          <p>Daily Top Sheet | Date: ${displayDate(state.date)}</p>
+        </div>
+        <table class="sheet print-section">
+          <colgroup>
+            <col style="width: 8%;" />
+            <col style="width: 14%;" />
+            <col style="width: 26%;" />
+            <col style="width: 37%;" />
+            <col style="width: 15%;" />
+          </colgroup>
+          <thead>
+            <tr>
+              <th class="top-cell">${displayDate(state.date)}</th>
+              <th class="top-cell" colspan="3">Daily Top Sheet - Detailed Report</th>
+              <th class="top-cell">Amount</th>
+            </tr>
+            <tr>
+              <th>SL</th>
+              <th>Type</th>
+              <th>Item Name / Category</th>
+              <th>Description</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody>${body}</tbody>
+        </table>
+        <section id="printSummaryBox" class="highlight-summary print-section"></section>
+        <div class="signature-row print-section">
+          <div class="signature-cell"><div class="signature-line">Prepared By / প্রস্তুতকারী</div></div>
+          <div class="signature-cell"><div class="signature-line">Verified By / যাচাইকারী</div></div>
+          <div class="signature-cell"><div class="signature-line">Approved By / অনুমোদনকারী</div></div>
+        </div>
+      `;
+      renderSummaryBox('printSummaryBox');
+    }
+
+    function renderAll() {
+      $('reportDate').value = state.date;
+      renderIncomeRows();
+      renderExpenseRows();
+      renderDetailReport();
+      renderSummaryBox('summaryBox');
+      renderTopTotals();
+      renderPrintArea();
+    }
+
+    async function refreshHistory() {
+      const merged = new Map();
+      getLocalReports().forEach((report) => merged.set(report.date, report));
+      try {
+        const remote = await getRemoteReports();
+        remote.forEach((report) => {
+          if (report.date) {
+            merged.set(report.date, report);
+            saveLocal(report);
+          }
+        });
+      } catch (error) {
+        // Local history remains available if Firestore cannot be queried.
+      }
+
+      const reports = Array.from(merged.values()).sort((a, b) => b.date.localeCompare(a.date));
+      const selected = $('historySelect').value;
+      $('historySelect').innerHTML = '<option value="">Date Wise History</option>' + reports.map((report) => {
+        const normalized = normalizeReport(report);
+        const summary = report.summary && typeof report.summary.finalRemainingBalance !== 'undefined' ? report.summary : calculateSummary(normalized);
+        return `<option value="${escapeHtml(report.date)}">${displayDate(report.date)} - Remain ${money(summary.finalRemainingBalance, false)}</option>`;
+      }).join('');
+      $('historySelect').value = selected;
+    }
+
+    async function saveReport(showMessage = true) {
+      if (!state.date) {
+        showToast('Please select a date.', 'warn');
+        return false;
+      }
+
+      const invalidAdditional = state.additionalIncome.find((row) => toNumber(row.amount) > 0 && !row.description.trim());
+      if (invalidAdditional) {
+        showToast('Additional cash amount থাকলে বিবরণ দিতে হবে।', 'warn');
+        return false;
+      }
+
+      const invalidExpense = state.expenses.find((row) => toNumber(row.amount) > 0 && (!row.category || !row.description.trim()));
+      if (invalidExpense) {
+        showToast('Expense amount থাকলে Category এবং Description দিতে হবে।', 'warn');
+        return false;
+      }
+
+      const report = buildFirestoreDocument();
+      saveLocal(report);
+      try {
+        await saveRemote(report);
+        if (showMessage) showToast(`Saved to ${firebaseReady ? 'Firestore and LocalStorage' : 'LocalStorage'}: ${displayDate(report.date)}`, 'good');
+      } catch (error) {
+        if (showMessage) showToast('Saved locally. Firebase sync failed.', 'warn');
+      }
+      await refreshHistory();
+      return true;
+    }
+
+    async function loadReport(date) {
+      if (!date) return;
+      let report = null;
+      try {
+        report = await loadRemote(date);
+        if (report) saveLocal(report);
+      } catch (error) {
+        report = null;
+      }
+
+      if (!report) report = loadLocal(date);
+      state = report ? normalizeReport(report) : createBlankState(date, 0);
+      renderAll();
+      showToast(report ? `Detailed report loaded: ${displayDate(date)}` : `Blank report opened: ${displayDate(date)}`, report ? 'good' : 'warn');
+    }
+
+    function addAdditionalIncome() {
+      state.additionalIncome.push({ id: uid(), description: '', amount: 0 });
+      renderAll();
+    }
+
+    function addExpense() {
+      state.expenses.push({ id: uid(), category: '', description: '', amount: 0 });
+      renderAll();
+    }
+
+    function handleTableInput(event) {
+      const target = event.target;
+      if (target.dataset.field === 'openingBalance') state.openingBalance = toNumber(target.value);
+      if (target.dataset.field === 'todayBudget') state.todayBudget = toNumber(target.value);
+
+      if (target.dataset.incomeId) {
+        const row = state.additionalIncome.find((item) => item.id === target.dataset.incomeId);
+        if (row) row[target.dataset.incomeField] = target.dataset.incomeField === 'amount' ? toNumber(target.value) : target.value;
+      }
+
+      if (target.dataset.expenseId) {
+        const row = state.expenses.find((item) => item.id === target.dataset.expenseId);
+        if (row) row[target.dataset.expenseField] = target.dataset.expenseField === 'amount' ? toNumber(target.value) : target.value;
+      }
+
+      renderDetailReport();
+      renderSummaryBox('summaryBox');
+      renderTopTotals();
+      renderPrintArea();
+    }
+
+    function handleTableClick(event) {
+      const incomeId = event.target.dataset.removeIncome;
+      const expenseId = event.target.dataset.removeExpense;
+      if (incomeId) {
+        state.additionalIncome = state.additionalIncome.filter((row) => row.id !== incomeId);
+        renderAll();
+      }
+      if (expenseId) {
+        state.expenses = state.expenses.filter((row) => row.id !== expenseId);
+        renderAll();
+      }
+    }
+
+    async function startNewDay() {
+      const saved = await saveReport(false);
+      if (!saved) return;
+      const carryForward = calculateSummary().finalRemainingBalance;
+      const nextDate = addDays(state.date, 1);
+      state = createBlankState(nextDate, carryForward);
+      renderAll();
+      showToast(`New day started. Opening Balance: ${money(carryForward)}`, 'good');
+    }
+
+    function resetForm() {
+      if (!confirm('বর্তমান ফর্ম রিসেট করতে চান? সংরক্ষিত ডাটা মুছবে না।')) return;
+      state = createBlankState(state.date, 0);
+      renderAll();
+      showToast('Form reset.', 'warn');
+    }
+
+    async function printCurrentReport() {
+      await saveReport(false);
+      renderPrintArea();
+      window.print();
+    }
+
+    function showToast(message, type = 'good') {
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      $('toastWrap').appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(24px)';
+        toast.style.transition = '0.22s ease';
+        setTimeout(() => toast.remove(), 240);
+      }, 2800);
+    }
+
+    function attachEvents() {
+      $('addCashBtn').addEventListener('click', addAdditionalIncome);
+      $('addExpenseBtn').addEventListener('click', addExpense);
+      $('saveBtn').addEventListener('click', () => saveReport(true));
+      $('printBtn').addEventListener('click', printCurrentReport);
+      $('newDayBtn').addEventListener('click', startNewDay);
+      $('resetBtn').addEventListener('click', resetForm);
+      $('refreshReportBtn').addEventListener('click', renderAll);
+
+      $('reportDate').addEventListener('change', (event) => loadReport(event.target.value));
+      $('historySelect').addEventListener('change', (event) => {
+        if (event.target.value) loadReport(event.target.value);
+      });
+      $('loadHistoryBtn').addEventListener('click', () => loadReport($('historySelect').value || $('reportDate').value));
+
+      $('incomeBody').addEventListener('input', handleTableInput);
+      $('incomeBody').addEventListener('click', handleTableClick);
+      $('expenseBody').addEventListener('input', handleTableInput);
+      $('expenseBody').addEventListener('change', handleTableInput);
+      $('expenseBody').addEventListener('click', handleTableClick);
+
+      $('toggleFirebaseBtn').addEventListener('click', () => $('firebaseFields').classList.toggle('hidden'));
+      $('connectFirebaseBtn').addEventListener('click', () => connectFirebase(false));
+      $('clearFirebaseBtn').addEventListener('click', () => {
+        localStorage.removeItem(FIREBASE_CONFIG_KEY);
+        fillFirebaseFields({});
+        firebaseReady = false;
+        fb = null;
+        updateStorageStatus('LocalStorage ready', false);
+        showToast('Firebase config cleared.', 'warn');
+      });
+
+      document.addEventListener('keydown', (event) => {
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 's') {
+          event.preventDefault();
+          saveReport(true);
+        }
+        if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'p') {
+          event.preventDefault();
+          printCurrentReport();
+        }
+      });
+    }
+
+    async function init() {
+      attachEvents();
+      updateStorageStatus('LocalStorage ready', false);
+
+      let savedConfig = null;
+      try {
+        savedConfig = JSON.parse(localStorage.getItem(FIREBASE_CONFIG_KEY) || 'null');
+      } catch (error) {
+        savedConfig = null;
+      }
+
+      if (savedConfig) {
+        fillFirebaseFields(savedConfig);
+        connectFirebase(true);
+      }
+
+      await refreshHistory();
+      await loadReport(todayISO());
+    }
+
+    init();
+  </script>
+</body>
+</html>
