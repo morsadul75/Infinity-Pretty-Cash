@@ -672,7 +672,6 @@
     const FIRESTORE_COLLECTION = 'pretty_cash_reports';
 
     const expenseCategories = [
-
       'MD Sir',
       'VAT',
       'B-Vehicle',
@@ -835,6 +834,12 @@
     function saveLocal(report) {
       const map = localMap();
       map[report.date] = report;
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(map));
+    }
+
+    function removeLocal(date) {
+      const map = localMap();
+      delete map[date];
       localStorage.setItem(LOCAL_KEY, JSON.stringify(map));
     }
 
@@ -1090,21 +1095,23 @@
     }
 
     async function refreshHistory() {
-      const merged = new Map();
-      getLocalReports().forEach((report) => merged.set(report.date, report));
-      try {
-        const remote = await getRemoteReports();
-        remote.forEach((report) => {
-          if (report.date) {
-            merged.set(report.date, report);
-            saveLocal(report);
-          }
-        });
-      } catch (error) {
-        // Local history remains available if Firestore cannot be queried.
+      let reports = [];
+      if (firebaseReady && fb) {
+        try {
+          reports = await getRemoteReports();
+          // LocalStorage-কে Firebase-এর সাথে সিঙ্ক করে ফ্রেস আপডেট রাখা
+          const newLocalMap = {};
+          reports.forEach((report) => {
+            if (report.date) newLocalMap[report.date] = report;
+          });
+          localStorage.setItem(LOCAL_KEY, JSON.stringify(newLocalMap));
+        } catch (error) {
+          reports = getLocalReports();
+        }
+      } else {
+        reports = getLocalReports();
       }
 
-      const reports = Array.from(merged.values()).sort((a, b) => b.date.localeCompare(a.date));
       const selected = $('historySelect').value;
       $('historySelect').innerHTML = '<option value="">Date Wise History</option>' + reports.map((report) => {
         const normalized = normalizeReport(report);
@@ -1147,17 +1154,30 @@
     async function loadReport(date) {
       if (!date) return;
       let report = null;
-      try {
-        report = await loadRemote(date);
-        if (report) saveLocal(report);
-      } catch (error) {
-        report = null;
+      let fetchedFromFirebase = false;
+
+      if (firebaseReady && fb) {
+        try {
+          report = await loadRemote(date);
+          fetchedFromFirebase = true;
+          if (report) {
+            saveLocal(report);
+          } else {
+            // 🔥 ফায়ারবেজে না থাকলে LocalStorage থেকেও মুছে ফেলা হচ্ছে
+            removeLocal(date);
+          }
+        } catch (error) {
+          fetchedFromFirebase = false;
+        }
       }
 
-      if (!report) report = loadLocal(date);
+      if (!fetchedFromFirebase) {
+        report = loadLocal(date);
+      }
+
       state = report ? normalizeReport(report) : createBlankState(date, 0);
       renderAll();
-      showToast(report ? `Detailed report loaded: ${displayDate(date)}` : `Blank report opened: ${displayDate(date)}`, report ? 'good' : 'warn');
+      showToast(report ? `Detailed report loaded: ${displayDate(date)}` : `No report found for: ${displayDate(date)}`, report ? 'good' : 'warn');
     }
 
     function addAdditionalIncome() {
@@ -1297,7 +1317,7 @@
 
       if (savedConfig) {
         fillFirebaseFields(savedConfig);
-        connectFirebase(true);
+        await connectFirebase(true);
       }
 
       await refreshHistory();
